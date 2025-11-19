@@ -1,45 +1,71 @@
 import { pgTable, text, timestamp, integer, varchar, uuid, boolean, decimal } from "drizzle-orm/pg-core";
 import { relations } from "drizzle-orm";
 
-// Users table for authentication
-export const users = pgTable("users", {
-    id: uuid("id").primaryKey().defaultRandom(),
-    email: varchar("email", { length: 255 }).notNull().unique(),
-    emailVerified: boolean("email_verified").default(false),
-    name: varchar("name", { length: 255 }),
+// Better Auth tables - using text IDs as per Better Auth requirements
+export const user = pgTable("user", {
+    id: text("id").primaryKey(),
+    name: text("name").notNull(),
+    email: text("email").notNull().unique(),
+    emailVerified: boolean("email_verified").default(false).notNull(),
     image: text("image"),
-    hashedPassword: text("hashed_password"),
     createdAt: timestamp("created_at").defaultNow().notNull(),
-    updatedAt: timestamp("updated_at").defaultNow().notNull(),
+    updatedAt: timestamp("updated_at")
+        .defaultNow()
+        .$onUpdate(() => /* @__PURE__ */ new Date())
+        .notNull(),
 });
 
-// Accounts table for OAuth
-export const accounts = pgTable("accounts", {
-    id: uuid("id").primaryKey().defaultRandom(),
-    userId: uuid("user_id").notNull().references(() => users.id, { onDelete: "cascade" }),
-    accountId: varchar("account_id", { length: 255 }).notNull(),
-    providerId: varchar("provider_id", { length: 255 }).notNull(),
-    accessToken: text("access_token"),
-    refreshToken: text("refresh_token"),
-    expiresAt: timestamp("expires_at"),
-    createdAt: timestamp("created_at").defaultNow().notNull(),
-});
-
-// Sessions table
-export const sessions = pgTable("sessions", {
-    id: uuid("id").primaryKey().defaultRandom(),
-    userId: uuid("user_id").notNull().references(() => users.id, { onDelete: "cascade" }),
+export const session = pgTable("session", {
+    id: text("id").primaryKey(),
     expiresAt: timestamp("expires_at").notNull(),
     token: text("token").notNull().unique(),
-    ipAddress: varchar("ip_address", { length: 45 }),
-    userAgent: text("user_agent"),
     createdAt: timestamp("created_at").defaultNow().notNull(),
+    updatedAt: timestamp("updated_at")
+        .$onUpdate(() => /* @__PURE__ */ new Date())
+        .notNull(),
+    ipAddress: text("ip_address"),
+    userAgent: text("user_agent"),
+    userId: text("user_id")
+        .notNull()
+        .references(() => user.id, { onDelete: "cascade" }),
+});
+
+export const account = pgTable("account", {
+    id: text("id").primaryKey(),
+    accountId: text("account_id").notNull(),
+    providerId: text("provider_id").notNull(),
+    userId: text("user_id")
+        .notNull()
+        .references(() => user.id, { onDelete: "cascade" }),
+    accessToken: text("access_token"),
+    refreshToken: text("refresh_token"),
+    idToken: text("id_token"),
+    accessTokenExpiresAt: timestamp("access_token_expires_at"),
+    refreshTokenExpiresAt: timestamp("refresh_token_expires_at"),
+    scope: text("scope"),
+    password: text("password"),
+    createdAt: timestamp("created_at").defaultNow().notNull(),
+    updatedAt: timestamp("updated_at")
+        .$onUpdate(() => /* @__PURE__ */ new Date())
+        .notNull(),
+});
+
+export const verification = pgTable("verification", {
+    id: text("id").primaryKey(),
+    identifier: text("identifier").notNull(),
+    value: text("value").notNull(),
+    expiresAt: timestamp("expires_at").notNull(),
+    createdAt: timestamp("created_at").defaultNow().notNull(),
+    updatedAt: timestamp("updated_at")
+        .defaultNow()
+        .$onUpdate(() => /* @__PURE__ */ new Date())
+        .notNull(),
 });
 
 // Students table with additional profile information
 export const students = pgTable("students", {
     id: uuid("id").primaryKey().defaultRandom(),
-    userId: uuid("user_id").notNull().unique().references(() => users.id, { onDelete: "cascade" }),
+    userId: text("user_id").notNull().unique().references(() => user.id, { onDelete: "cascade" }),
     enrollmentNumber: varchar("enrollment_number", { length: 50 }).notNull().unique(),
     age: integer("age"),
     phone: varchar("phone", { length: 20 }),
@@ -113,17 +139,17 @@ export const feedback = pgTable("feedback", {
 });
 
 // Relations
-export const usersRelations = relations(users, ({ one }) => ({
+export const userRelations = relations(user, ({ one }) => ({
     student: one(students, {
-        fields: [users.id],
+        fields: [user.id],
         references: [students.userId],
     }),
 }));
 
 export const studentsRelations = relations(students, ({ one, many }) => ({
-    user: one(users, {
+    user: one(user, {
         fields: [students.userId],
-        references: [users.id],
+        references: [user.id],
     }),
     enrollments: many(enrollments),
     results: many(results),

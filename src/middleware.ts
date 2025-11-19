@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
 import { auth } from "@/lib/auth";
+import { headers } from "next/headers"
 
 export async function middleware(request: NextRequest) {
     const { pathname } = request.nextUrl;
@@ -15,16 +16,19 @@ export async function middleware(request: NextRequest) {
 
     // Check authentication
     try {
-        const session = await auth.api.getSession({ headers: request.headers });
 
-        if (!session) {
-            const loginUrl = new URL("/login", request.url);
-            loginUrl.searchParams.set("from", pathname);
-            return NextResponse.redirect(loginUrl);
-        }
+        // const session = await auth.api.getSession({ headers: request.headers });
+        // const session = await auth.api.getSession({ headers: await headers() })
+
+        // if (!session) {
+        //     const loginUrl = new URL("/login", request.url);
+        //     loginUrl.searchParams.set("from", pathname);
+        //     return NextResponse.redirect(loginUrl);
+        // }
 
         return NextResponse.next();
     } catch (error) {
+        console.error("Auth error details:", error);
         const loginUrl = new URL("/login", request.url);
         return NextResponse.redirect(loginUrl);
     }

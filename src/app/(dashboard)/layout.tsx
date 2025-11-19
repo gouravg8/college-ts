@@ -29,9 +29,9 @@ export default async function DashboardLayout({
         name: session.user.name || "Student",
         email: session.user.email,
         enrollmentNumber: studentData?.enrollmentNumber || "N/A",
-        department: studentData?.department,
-        semester: studentData?.semester,
-        image: session.user.image,
+        department: studentData?.department || "N/A",
+        semester: studentData?.semester || 1,
+        image: session.user.image || "N/A",
     };
 
     return (

@@ -71,7 +71,7 @@ export default function SignupPage() {
     };
 
     const handleGoogleSignup = () => {
-        window.location.href = "/api/auth/sign-in/google";
+        window.location.href = "/api/auth/callback./google";
     };
 
     return (

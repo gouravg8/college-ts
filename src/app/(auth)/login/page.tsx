@@ -42,7 +42,7 @@ export default function LoginPage() {
     };
 
     const handleGoogleLogin = async () => {
-        window.location.href = "/api/auth/sign-in/google";
+        window.location.href = "/api/auth/callback/google";
     };
 
     return (
