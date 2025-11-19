@@ -10,12 +10,12 @@ export async function middleware(request: NextRequest) {
     const publicPaths = ["/login", "/signup", "/api/auth"];
     const isPublicPath = publicPaths.some((path) => pathname.startsWith(path));
 
-    if (isPublicPath) {
-        return NextResponse.next();
-    }
+    // if (isPublicPath) {
+    //     return NextResponse.next();
+    // }
 
     // Check authentication
-    try {
+    // try {
 
         // const session = await auth.api.getSession({ headers: request.headers });
         // const session = await auth.api.getSession({ headers: await headers() })
@@ -27,11 +27,11 @@ export async function middleware(request: NextRequest) {
         // }
 
         return NextResponse.next();
-    } catch (error) {
-        console.error("Auth error details:", error);
-        const loginUrl = new URL("/login", request.url);
-        return NextResponse.redirect(loginUrl);
-    }
+    // } catch (error) {
+    //     console.error("Auth error details:", error);
+    //     const loginUrl = new URL("/login", request.url);
+    //     return NextResponse.redirect(loginUrl);
+    // }
 }
 
 export const config = {

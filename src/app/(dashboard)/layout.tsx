@@ -16,22 +16,22 @@ export default async function DashboardLayout({
 }) {
     const session = await auth.api.getSession({ headers: await headers() });
 
-    if (!session) {
-        redirect("/login");
-    }
+    // if (!session) {
+    //     redirect("/login");
+    // }
 
     // Fetch student data
     const studentData = await db.query.students.findFirst({
-        where: eq(students.userId, session.user.id),
+        where: eq(students?.userId || "", session?.user.id || ""),
     });
 
     const studentInfo = {
-        name: session.user.name || "Student",
-        email: session.user.email,
+        name: session?.user.name || "Student",
+        email: session?.user.email || "N/A",
         enrollmentNumber: studentData?.enrollmentNumber || "N/A",
         department: studentData?.department || "N/A",
         semester: studentData?.semester || 1,
-        image: session.user.image || "N/A",
+        image: session?.user.image || "N/A",
     };
 
     return (
