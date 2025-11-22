@@ -1,41 +1,35 @@
 import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
-import { auth } from "@/lib/auth";
-import { headers } from "next/headers"
 
 export async function middleware(request: NextRequest) {
-    const { pathname } = request.nextUrl;
+  const { pathname } = request.nextUrl;
 
-    // Public paths that don't require authentication
-    const publicPaths = ["/login", "/signup", "/api/auth"];
-    const isPublicPath = publicPaths.some((path) => pathname.startsWith(path));
+  // 1. Define public paths
+  const publicPaths = ["/login", "/signup", "/api/auth"];
+  const isPublicPath = publicPaths.some((path) => pathname.startsWith(path));
 
-    // if (isPublicPath) {
-    //     return NextResponse.next();
-    // }
+  if (isPublicPath) {
+    return NextResponse.next();
+  }
 
-    // Check authentication
-    // try {
+  // 2. Check for the session cookie
+  // Better Auth usually uses "better-auth.session_token" or just "session_token"
+  // We check for both just in case.
+  const sessionCookie =
+    request.cookies.get("better-auth.session_token") ||
+    request.cookies.get("session_token");
 
-        // const session = await auth.api.getSession({ headers: request.headers });
-        // const session = await auth.api.getSession({ headers: await headers() })
+  if (!sessionCookie) {
+    const loginUrl = new URL("/login", request.url);
+    loginUrl.searchParams.set("from", pathname);
+    return NextResponse.redirect(loginUrl);
+  }
 
-        // if (!session) {
-        //     const loginUrl = new URL("/login", request.url);
-        //     loginUrl.searchParams.set("from", pathname);
-        //     return NextResponse.redirect(loginUrl);
-        // }
-
-        return NextResponse.next();
-    // } catch (error) {
-    //     console.error("Auth error details:", error);
-    //     const loginUrl = new URL("/login", request.url);
-    //     return NextResponse.redirect(loginUrl);
-    // }
+  // 3. Allow the request to proceed
+  // The actual DB validation will happen in your Page/Layout (Server Component)
+  return NextResponse.next();
 }
 
 export const config = {
-    matcher: [
-        "/((?!_next/static|_next/image|favicon.ico|public).*)",
-    ],
+  matcher: ["/((?!_next/static|_next/image|favicon.ico).*)"],
 };
