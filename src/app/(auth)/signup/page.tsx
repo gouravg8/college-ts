@@ -14,6 +14,7 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
+import { authClient } from "@/lib/authClient";
 
 export default function SignupPage() {
   const router = useRouter();
@@ -77,8 +78,11 @@ export default function SignupPage() {
     }
   };
 
-  const handleGoogleSignup = () => {
-    window.location.href = "/api/auth/callback/google";
+  const handleGoogleSignup = async () => {
+    await authClient.signIn.social({
+      provider: "google",
+      callbackURL: "/dashboard",
+    });
   };
 
   return (

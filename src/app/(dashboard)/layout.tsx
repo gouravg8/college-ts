@@ -56,7 +56,7 @@ export default async function DashboardLayout({
         <header className="hidden lg:flex items-center justify-between border-b bg-white px-6 py-4">
           <div>
             <h1 className="text-xl font-semibold">
-              Welcome, {studentInfo.name}
+              Welcome, {studentInfo.name.split(" ")[0]}
             </h1>
             <p className="text-sm text-muted-foreground">
               {studentInfo.enrollmentNumber}
