@@ -17,9 +17,8 @@ export async function middleware(request: NextRequest) {
   // We check for both just in case.
   const sessionCookie =
     request.cookies.get("better-auth.session_token") ||
-    request.cookies.get("session_token");
-
-  if (!sessionCookie) {
+    request.cookies.get("__Secure-better-auth.session_token") ||
+ if (!sessionCookie) {
     const loginUrl = new URL("/login", request.url);
     loginUrl.searchParams.set("from", pathname);
     return NextResponse.redirect(loginUrl);
